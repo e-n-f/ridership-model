@@ -1,0 +1,17 @@
+f(x) = a * (.5 + .5 * erf((log(x) - u) / (sqrt(2) * o)))
+
+
+cat mode-points | grep home | awk '{print $6}' | sort -n > /tmp/foo
+fit f(x) "/tmp/foo" using 1:0 via a, u, o
+
+a               = 141763           +/- 10.5         (0.007408%)
+u               = 8.64499          +/- 0.0001548    (0.001791%)
+o               = 1.20751          +/- 0.0001796    (0.01487%)
+
+
+cat mode-points | grep -v home | awk '{print $6}' | sort -n > /tmp/foo
+fit f(x) "/tmp/foo" using 1:0 via a, u, o
+
+a               = 164297           +/- 19.44        (0.01183%)
+u               = 7.13947          +/- 0.0002245    (0.003144%)
+o               = 1.03404          +/- 0.0002947    (0.0285%)
