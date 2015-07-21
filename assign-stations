@@ -101,8 +101,11 @@ while (<IN>) {
 	}
 }
 
+# f(x) = m * x ** a
+# fit log(f(x)) "assigned" using 2:(log($3)) via m, a
+
 for $station (sort(keys(%sum))) {
-	printf("%s %.16f %d\n", $station, $sum{$station}, $riders{$station});
+	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 2.28861e+10 * exp(log($sum{$station}) * 1.81636));
 }
 
 exit(0);
