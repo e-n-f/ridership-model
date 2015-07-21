@@ -1,1 +1,3 @@
-grep ',37\.[0-9]*,-122' all-commute-2012 > all-commute-2012-37-122
+#!/bin/sh
+
+grep ',37\.[0-9]*,-12[12]' ../lehd/all-commute-2012 > all-commute-2012-37-122
