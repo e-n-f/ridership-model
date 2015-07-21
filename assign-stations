@@ -90,16 +90,16 @@ while (<IN>) {
 	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
 
 	if ($workstation le $homestation) {
-		$weight{"$workstation-$homestation"} += $workweight * $homeweight;
+		$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
 	} else {
-		$weight{"$homestation-$workstation"} += $workweight * $homeweight;
+		$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
 	}
 
 	if ($workstation ne "") {
-		$sum{$homestation} += $workweight * $homeweight;
+		$sum{$homestation} += $workweight * $homeweight * $count;
 	}
 	if ($homestation ne "") {
-		$sum{$workstation} += $workweight * $homeweight;
+		$sum{$workstation} += $workweight * $homeweight * $count;
 	}
 }
 
@@ -109,7 +109,7 @@ while (<IN>) {
 for $station (sort(keys(%sum))) {
 	next if $station eq "";
 
-	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 6.7904e+16 * exp(log($sum{$station}) * 1.28945));
+	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 4.04396e+18 * exp(log($sum{$station}) * 1.46523));
 }
 
 exit(0);
