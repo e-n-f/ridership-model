@@ -1,0 +1,1 @@
+grep ',37\.[0-9]*,-122' all-commute-2012 > all-commute-2012-37-122
