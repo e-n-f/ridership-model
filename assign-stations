@@ -8,6 +8,8 @@ open(IN, "names-corrected-centers");
 while (<IN>) {
 	# 60390 Powell bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
 
+	next if /#/;
+
 	chomp;
 	($riders, $name, $where) = split(/ /, $_, 3);
 	while ($where =~ s/.*svg //) {
@@ -84,8 +86,8 @@ while (<IN>) {
 	($workstation, $workdistance) = find($worklat, $worklon);
 	($homestation, $homedistance) = find($homelat, $homelon);
 
-	$workweight = pdf($workdistance, 7.13947, 1.03404);
-	$homeweight = pdf($workdistance, 8.64499, 1.20751);
+	$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
+	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
 
 	if ($workstation le $homestation) {
 		$weight{"$workstation-$homestation"} += $workweight * $homeweight;
@@ -105,7 +107,9 @@ while (<IN>) {
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
 
 for $station (sort(keys(%sum))) {
-	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 2.28861e+10 * exp(log($sum{$station}) * 1.81636));
+	next if $station eq "";
+
+	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 6.7904e+16 * exp(log($sum{$station}) * 1.28945));
 }
 
 exit(0);
