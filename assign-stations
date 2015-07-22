@@ -107,19 +107,36 @@ while (<IN>) {
 	($workstation, $workdistance) = find($worklat, $worklon);
 	($homestation, $homedistance) = find($homelat, $homelon);
 
+	next if ($homestation eq $workstation);
+
+	$rat = cos($lat{$workstation} * $pi / 180);
+	$latd = $lat{$workstation} - $lat{$homestation};
+	$lond = ($lon{$workstation} - $lon{$homestation}) * $rat;
+	$dist = sqrt($latd * $latd + $lond * $lond) / $foot;
+
 	$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
 	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
 
 	if ($workstation ne "" && $homestation ne "") {
 		if ($workstation le $homestation) {
 			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
+			$dist{"$workstation-$homestation"} = $dist;
 		} else {
 			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+			$dist{"$homestation-$workstation"} = $dist;
 		}
 	}
 
+# f(x) = m * x ** a
+# fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
+# a = 0.780402
+#
+# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.780402))):(log($3)) via m, a
+# m = 2.86487e+08
+# a = 0.717627
+
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 1.00174e+09 * exp(log($workweight * $homeweight * $count) * 0.549674);
+		$val = 2.86487e+08 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.780402)) * 0.717627);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -132,12 +149,12 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 3.28502 * exp(log($sum{$station}) * 0.660321));
+		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 2.78717 * exp(log($sum{$station}) * 0.735486));
 	}
 
 	exit(0);
 }
 
 for $pair (sort(keys(%weight))) {
-	printf("%s %.32f %d\n", $pair, $weight{$pair}, $count{$pair});
+	printf("%s %.32f %d %d\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair});
 }
