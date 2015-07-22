@@ -7,13 +7,13 @@ of stations on the Silicon Valley BART extension, if the
 
 Station | Predicted ridership
 ------- | -------------------
-Warm Springs | 220
-Milpitas | 265
-Berryessa | 504
-Alum Rock | 490
-San Jose | 2798
-Diridon | 811
-Santa Clara | 281
+Warm Springs | 239
+Milpitas | 334
+Berryessa | 574
+Alum Rock | 560
+San Jose | 2626
+Diridon | 883
+Santa Clara | 345
 
 The model predicts ridership of existing stations with a geometric standard deviation of 1.75,
 meaning we can be 95% confident that the ridership will not be lower than

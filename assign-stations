@@ -68,7 +68,7 @@ sub pdf {
 
 open(IN, "all-commute-2012-37-122");
 while (<IN>) {
-	$s = int($seq++ * 100 / 3067159);
+	$s = int($seq++ * 100 / 4211586);
 	if ($s != $os) {
 		$os = $s;
 		print STDERR "$s\r";
@@ -109,7 +109,7 @@ while (<IN>) {
 for $station (sort(keys(%sum))) {
 	next if $station eq "";
 
-	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 4.04396e+18 * exp(log($sum{$station}) * 1.46523));
+	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 6.81487e+16 * exp(log($sum{$station}) * 1.29683));
 }
 
 exit(0);
