@@ -6,24 +6,45 @@ $pi = 4 * atan2(1, 1);
 
 open(IN, "names-corrected-centers");
 while (<IN>) {
-	# 60390 Powell bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
+	# 60390 Powell PL bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
 
 	next if /#/;
 
 	chomp;
-	($riders, $name, $where) = split(/ /, $_, 3);
+	($riders, $name, $code, $where) = split(/ /, $_, 4);
 	while ($where =~ s/.*svg //) {
 		;
 	}
 	($lat, $lon) = split(/,/, $where);
 
-	$lat{$name} = $lat;
-	$lon{$name} = $lon;
-	$riders{$name} = $riders;
+	$name{$code} = $name;
+	$lat{$code} = $lat;
+	$lon{$code} = $lon;
+	$riders{$code} = $riders;
 
-	push @{$cand{int($lat / $bucket)}{int($lon / $bucket)}}, $name;
+	push @{$cand{int($lat / $bucket)}{int($lon / $bucket)}}, $code;
 }
 close(IN);
+
+open(IN, "Ridership_May2015.csv");
+$_ = <IN>;
+$_ = <IN>;
+@stations = split(/,/, $_);
+while (<IN>) {
+	@fields = split(/,/);
+	last if $fields[0] eq "Entries";
+	for ($i = 1; $i <= $#fields; $i++) {
+		last if $stations[$i] eq "Exits";
+
+		if ($fields[0] lt $stations[$i]) {
+			$name = "$fields[0]-$stations[$i]";
+		} else {
+			$name = "$stations[$i]-$fields[0]";
+		}
+
+		$count{$name} += $fields[$i];
+	}
+}
 
 sub find {
 	my ($lat, $lon) = @_;
@@ -33,7 +54,7 @@ sub find {
 	}
 
 	my $best = "";
-	my $bestd = 99999999;
+	my $bestd = 4 * 5280;
 	my $rat = cos($lat * $pi / 180);
 
 	my ($a, $o);
@@ -89,31 +110,34 @@ while (<IN>) {
 	$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
 	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
 
-	if ($workstation le $homestation) {
-		$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
-	} else {
-		$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+	if ($workstation ne "" && $homestation ne "") {
+		if ($workstation le $homestation) {
+			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
+		} else {
+			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+		}
 	}
 
-	if ($workstation ne "") {
-		$sum{$homestation} += $workweight * $homeweight * $count;
-	}
-	if ($homestation ne "") {
-		$sum{$workstation} += $workweight * $homeweight * $count;
+	if ($workstation ne "" && $homestation ne "") {
+		$val = 1.00174e+09 * exp(log($workweight * $homeweight * $count) * 0.549674);
+		$sum{$homestation} += $val;
+		$sum{$workstation} += $val;
 	}
 }
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
 
-for $station (sort(keys(%sum))) {
-	next if $station eq "";
+if (1) {
+	for $station (sort(keys(%sum))) {
+		next if $station eq "";
 
-	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 1/3.41346e-10 * exp(log($sum{$station}) * 0.540688));
+		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 3.28502 * exp(log($sum{$station}) * 0.660321));
+	}
+
+	exit(0);
 }
 
-exit(0);
-
 for $pair (sort(keys(%weight))) {
-	printf("%s %.16f\n", $pair, $weight{$pair});
+	printf("%s %.32f %d\n", $pair, $weight{$pair}, $count{$pair});
 }
