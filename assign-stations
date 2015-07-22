@@ -28,13 +28,15 @@ close(IN);
 sub find {
 	my ($lat, $lon) = @_;
 
-	if ($distance{$lat}{$lon} ne "") {
-		return ($station{$lat}{$lon}, $distance{$lat}{$lon});
+	if (defined($distance{$lat}{$lon})) {
+		return %{$distance{$lat}{$lon}};
 	}
 
 	my $best = "";
 	my $bestd = 99999999;
 	my $rat = cos($lat * $pi / 180);
+
+	my %ret = ();
 
 	my ($a, $o);
 	for ($a = int($lat / $bucket) - 4; $a <= int($lat / $bucket) + 4; $a++) {
@@ -46,18 +48,15 @@ sub find {
 				my $lond = ($lon - $lon{$c}) * $rat;
 				my $d = sqrt($latd * $latd + $lond * $lond) / $foot;
 
-				if ($d < $bestd) {
-					$bestd = $d;
-					$best = $c;
+				if ($d < 4 * 5280) {
+					$ret{$c} = $d;
 				}
 			}
 		}
 	}
 
-	$station{$lat}{$lon} = $best;
-	$distance{$lat}{$lon} = $bestd;
-
-	return ($best, $bestd);
+	%{$distance{$lat}{$lon}} = %ret;
+	return %ret;
 }
 
 sub pdf {
@@ -83,23 +82,24 @@ while (<IN>) {
 	$homelat = $fields[15];
 	$homelon = $fields[16];
 
-	($workstation, $workdistance) = find($worklat, $worklon);
-	($homestation, $homedistance) = find($homelat, $homelon);
+	%work = find($worklat, $worklon);
+	%home = find($homelat, $homelon);
 
-	$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
-	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
+	for $workstation (keys(%work)) {
+		for $homestation(keys(%home)) {
+			$workdistance = $work{$workstation};
+			$homedistance = $home{$homestation};
 
-	if ($workstation le $homestation) {
-		$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
-	} else {
-		$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
-	}
+			$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
+			$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
 
-	if ($workstation ne "") {
-		$sum{$homestation} += $workweight * $homeweight * $count;
-	}
-	if ($homestation ne "") {
-		$sum{$workstation} += $workweight * $homeweight * $count;
+			if ($workstation ne "") {
+				$sum{$homestation} += $workweight * $homeweight * $count;
+			}
+			if ($homestation ne "") {
+				$sum{$workstation} += $workweight * $homeweight * $count;
+			}
+		}
 	}
 }
 
@@ -109,7 +109,7 @@ while (<IN>) {
 for $station (sort(keys(%sum))) {
 	next if $station eq "";
 
-	printf("%s %.16f %d %d\n", $station, $sum{$station}, $riders{$station}, 6.81487e+16 * exp(log($sum{$station}) * 1.29683));
+	printf("%s %.40f %d %d\n", $station, $sum{$station}, $riders{$station}, 1 / 7.37368e-16 * exp(log($sum{$station}) * 1.15721));
 }
 
 exit(0);
