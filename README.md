@@ -7,13 +7,13 @@ of stations on the Silicon Valley BART extension, if the
 
 Station | Predicted ridership
 ------- | -------------------
-Warm Springs | 3400
-Milpitas | 3898
-Berryessa | 4071
-Alum Rock | 3855
-San Jose | 7128
-Diridon | 4718
-Santa Clara | 4093
+Warm Springs | 3931
+Milpitas | 3836
+Berryessa | 4054
+Alum Rock | 3841
+San Jose | 7081
+Diridon | 4682
+Santa Clara | 4063
 
 The model predicts ridership of existing stations with a geometric standard deviation of 1.53,
 meaning we can be 95% confident that the ridership will not be lower than
@@ -22,6 +22,9 @@ meaning we can be 95% confident that the ridership will not be lower than
 I consider it fairly unlikely (1.7 standard deviations out) that the
 three stations of the Berryessa Extension will have 23,000 riders per day
 at opening [as predicted](http://www.vta.org/bart/faq).
+I predict 3557 when Warm Springs alone opens, and 11,936 for the three stations together.
+Maybe by 23,000 they mean both entries and exits, which wouldn't be far off.
 
 The 55,000 [projected daily riders](http://vtaorgcontent.s3-us-west-1.amazonaws.com/Site_Content/BARTPhase2-ScopingPresentation-50212.pdf)
 of the remaning 4 stations is slightly more unlikely, 2.4 standard deviations away.
+Again, maybe they really mean both entries and exits.
