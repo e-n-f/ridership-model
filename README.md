@@ -5,8 +5,8 @@ For the record, these are my predictions for the daily ridership
 of stations on the Silicon Valley BART extension, if the
 7 stations currently planned or under construction are built.
 
-Station | Predicted ridership
-------- | -------------------
+Station | Predicted daily exits
+------- | ---------------------
 Warm Springs | 3931
 Milpitas | 3836
 Berryessa | 4054
@@ -28,3 +28,11 @@ Maybe by 23,000 they mean both entries and exits, which wouldn't be far off.
 The 55,000 [projected daily riders](http://vtaorgcontent.s3-us-west-1.amazonaws.com/Site_Content/BARTPhase2-ScopingPresentation-50212.pdf)
 of the remaning 4 stations is slightly more unlikely, 2.4 standard deviations away.
 Again, maybe they really mean both entries and exits.
+
+If Livermore and eBART riders behave like other BART riders, I also predict the following:
+
+Station | Predicted daily exits
+------- | ---------------------
+Railroad Ave | 5082
+Antioch | 5307
+Isabel Ave | 2760
