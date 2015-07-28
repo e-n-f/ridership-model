@@ -4,6 +4,9 @@ $foot = .00000274;
 $bucket = 5280 * $foot;
 $pi = 4 * atan2(1, 1);
 
+$ex = $ARGV[0];
+$ex = 0.5625;
+
 open(IN, "names-corrected-centers");
 while (<IN>) {
 	# 60390 Powell PL bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
@@ -114,8 +117,8 @@ while (<IN>) {
 	$lond = ($lon{$workstation} - $lon{$homestation}) * $rat;
 	$dist = sqrt($latd * $latd + $lond * $lond) / $foot;
 
-	$workweight = pdf($workdistance, 7.13947, 1.03404) / $workdistance;
-	$homeweight = pdf($homedistance, 8.64499, 1.20751) / $homedistance;
+	$workweight = pdf($workdistance, 7.13947, 1.03404) / exp(log($workdistance) * $ex);
+	$homeweight = pdf($homedistance, 8.64499, 1.20751) / exp(log($homedistance) * $ex);
 
 	if ($workstation ne "" && $homestation ne "") {
 		if ($workstation le $homestation) {
@@ -129,14 +132,14 @@ while (<IN>) {
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
-# a = 0.780402
+# a = 0.701591
 #
-# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.780402))):(log($3)) via m, a
-# m = 2.86487e+08
-# a = 0.717627
+# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.701591))):(log($3)) via m, a
+# m = 1.58146e+07
+# a = 0.805727
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 2.86487e+08 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.780402)) * 0.717627);
+		$val = 1.58146e+07 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701591)) * 0.805727);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -149,7 +152,7 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 2.78717 * exp(log($sum{$station}) * 0.735486));
+		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 2.71487 * exp(log($sum{$station}) * 0.766248));
 	}
 
 	exit(0);
