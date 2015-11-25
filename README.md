@@ -37,3 +37,25 @@ Station | Predicted daily exits
 Railroad Ave | 5051
 Antioch | 5654
 Isabel Ave | 2934
+
+How does it work?
+-----------------
+
+The prediction comes from matching [LEHD commute flows](http://lehd.ces.census.gov/data/#lodes)
+to existing [BART station-to-station ridership counts](http://www.bart.gov/about/reports/ridership)
+with probabilities from the [BART station profile study](http://www.bart.gov/about/reports/profile).
+
+The stages are:
+
+  * Given all known Bay Area commutes, calculate the distance from their
+    origins and destinations to the nearest BART stations or hypothetical future stations.
+  * Calculate a probability that this trip would be taken on BART based on the product of the
+    lognormal curves from the Station Profile Study: 1260 feet (times or divided by 2.8) from work
+    and 5682 feet (times or divided by 3.35) from home.
+  * Reduce each probability empirically by the 1.8th root of the distance from the station.
+  * Increase the probability empirically by the 0.7th power of the distance between the two stations.
+  * Scale the probability to match the actual station-to-station ridership counts: 15814600 times the 0.8th power of the probability.
+  * Sum the estimated station-to-station ridership count for each station pair
+  * For each station, scale it again to match the station totals by calculating 2.7 times the 0.766th power of the station total.
+ 
+There are a lot of regression-to-the-mean problems along the way, but it's not too bad.
