@@ -123,9 +123,14 @@ while (<IN>) {
 	if ($workstation ne "" && $homestation ne "") {
 		if ($workstation le $homestation) {
 			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
+			$wweight{"$workstation"} += $workweight * $count;
+			$hweight{"$homestation"} += $homeweight * $count;
+			$dist{"$workstation-$homestation"} = $dist;
 			$dist{"$workstation-$homestation"} = $dist;
 		} else {
 			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+			$wweight{"$workstation"} += $workweight * $count;
+			$hweight{"$homestation"} += $homeweight * $count;
 			$dist{"$homestation-$workstation"} = $dist;
 		}
 	}
@@ -148,11 +153,16 @@ while (<IN>) {
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
 
+### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
+### set dummy x, y, z
+### fit log(f(x, y, z)) "assigned" using 2:5:6:(log($3)) via m1, a1, m2, a2, m3, a3
+
 if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d\n", $name{$station}, $sum{$station}, $riders{$station}, 2.71487 * exp(log($sum{$station}) * 0.766248));
+		printf("%s %.16f %d %d %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.71487 * exp(log($sum{$station}) * 0.766248),
+			$wweight{$station}, $hweight{$station});
 	}
 
 	exit(0);
