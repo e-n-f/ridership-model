@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+$minlat = 180;
+$minlon = 180;
+$maxlat = -180;
+$maxlon = -180;
+
+$foot = .00000274;
+$pi = 4 * atan2(1, 1);
+$buffer = 20 * 5280 * $foot;
+
+open(IN, "names-corrected-centers");
+while (<IN>) {
+	chomp;
+	next if /#/;
+	s/.* //;
+	($lat, $lon) = split(/,/);
+	if ($lat < $minlat) { $minlat = $lat; }
+	if ($lon < $minlon) { $minlon = $lon; }
+	if ($lat > $maxlat) { $maxlat = $lat; }
+	if ($lon > $maxlon) { $maxlon = $lon; }
+}
+
+print STDERR "$minlat,$minlon $maxlat,$maxlon\n";
+
+$rat = cos($maxlat * $pi / 180);
+$maxlat += $buffer;
+$minlat -= $buffer;
+$maxlon += $buffer / $rat;
+$minlon -= $buffer / $rat;
+
+print STDERR "$minlat,$minlon $maxlat,$maxlon\n";
+
+while (<>) {
+	@fields = split(/,/);
+
+	$lat1 = $fields[13];
+	$lon1 = $fields[14];
+	$lat2 = $fields[15];
+	$lon2 = $fields[16];
+
+	if (($lat1 > $minlat && $lat1 < $maxlat && $lon1 > $minlon && $lon1 < $maxlon) ||
+	    ($lat2 > $minlat && $lat2 < $maxlat && $lon2 > $minlon && $lon2 < $maxlon)) {
+		print;
+	}
+}
+
