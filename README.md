@@ -15,18 +15,18 @@ San Jose | 8415
 Diridon | 5989
 Santa Clara | 4984
 
-The model predicts ridership of existing stations with a geometric standard deviation of 1.49,
+The model predicts ridership of existing stations with a geometric standard deviation of 1.5,
 meaning we can be 95% confident that the ridership will not be lower than
-45% of this prediction or greater than 222% of it.
+44% of this prediction or greater than 225% of it.
 
-I consider it fairly unlikely (1.5 standard deviations out) that the
+I consider it somewhat unlikely (1 standard deviation out) that the
 three stations of the Berryessa Extension will have 23,000 riders per day
 at opening [as predicted](http://www.vta.org/bart/faq).
 I predict 4369 when Warm Springs alone opens, and 15,539 for the three stations together.
 Maybe by 23,000 they mean both entries and exits, which wouldn't be far off.
 
 The 55,000 [projected daily riders](http://vtaorgcontent.s3-us-west-1.amazonaws.com/Site_Content/BARTPhase2-ScopingPresentation-50212.pdf)
-of the remaning 4 stations is slightly more unlikely, 2.6 standard deviations away.
+of the remaning 4 stations is more unlikely, 2 standard deviations above my prediction.
 Again, maybe they really mean both entries and exits,
 in which case it's only a little high.
 
