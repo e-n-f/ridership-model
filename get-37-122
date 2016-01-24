@@ -1,3 +1,0 @@
-#!/bin/sh
-
-grep ',3[78]\.[0-9]*,-12[12]' ../lehd/all-commute-2012 > all-commute-2012-37-122
