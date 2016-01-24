@@ -90,15 +90,16 @@ sub pdf {
 	return exp(- ((log($x) - $u) * (log($x) - $u) / 2 * $o * $o)) / ($x * $o * sqrt(2 * $pi));
 }
 
-open(IN, "all-commute-2012-37-122");
+open(IN, "all-commute-2012-bart");
 while (<IN>) {
-	$s = int($seq++ * 100 / 4211586);
+	$s = int($seq++ * 100 / 3133856);
 	if ($s != $os) {
 		$os = $s;
 		print STDERR "$s\r";
 	}
 
 	chomp;
+	s/ /,/g;
 	@fields = split(/,/);
 
 	$count = $fields[2];
@@ -106,6 +107,8 @@ while (<IN>) {
 	$worklon = $fields[14];
 	$homelat = $fields[15];
 	$homelon = $fields[16];
+	$workarea = $fields[17] + $fields[18];
+	$homearea = $fields[19] + $fields[20];
 
 	($workstation, $workdistance) = find($worklat, $worklon);
 	($homestation, $homedistance) = find($homelat, $homelon);
@@ -125,33 +128,56 @@ while (<IN>) {
 			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
-			$dist{"$workstation-$homestation"} = $dist;
+			$warea{"$workstation"} += $workarea * $count;
+			$harea{"$homestation"} += $homearea * $count;
 			$dist{"$workstation-$homestation"} = $dist;
 		} else {
 			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
+			$warea{"$workstation"} += $workarea * $count;
+			$harea{"$homestation"} += $homearea * $count;
 			$dist{"$homestation-$workstation"} = $dist;
 		}
 	}
 
+# Determining model for individual origin-destination pairs.
+# With first-stage output turned on below:
+
+# Determining empirical boost in trip frequency for longer trips
+#
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
-# a = 0.701591
+# a = 0.981606
+
+# Determining scaling from LEHD commute counts to BART trip counts
 #
-# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.701591))):(log($3)) via m, a
-# m = 1.58146e+07
-# a = 0.805727
+# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.981606))):(log($3)) via m, a
+# m = 1.2826e+06
+# a = 0.806351
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 1.58146e+07 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701591)) * 0.805727);
+		$val = 1.2826e+06 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.981606)) * 0.806351);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
 }
 
+if (0) {
+	for $pair (sort(keys(%weight))) {
+		printf("%s %.32f %d %d\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair});
+	}
+
+	exit(0);
+}
+
+# Then determining model for total at each station.
+# With second-stage output:
+
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
+# m               = 2.15107          +/- 1.995        (92.73%)
+# a               = 0.791789         +/- 0.09027      (11.4%)
 
 ### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
 ### set dummy x, y, z
@@ -161,13 +187,9 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.71487 * exp(log($sum{$station}) * 0.766248),
+		printf("%s %.16f %d %d %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.15107 * exp(log($sum{$station}) * 0.791789),
 			$wweight{$station}, $hweight{$station});
 	}
 
 	exit(0);
-}
-
-for $pair (sort(keys(%weight))) {
-	printf("%s %.32f %d %d\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair});
 }
