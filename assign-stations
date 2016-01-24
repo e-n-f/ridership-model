@@ -128,15 +128,27 @@ while (<IN>) {
 			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
-			$warea{"$workstation"} += $workarea * $count;
-			$harea{"$homestation"} += $homearea * $count;
+			if (! $counted{$workstation}{"$worklat,$worklon"}) {
+				$area{"$workstation"} += $workweight * $workarea;
+				$counted{$workstation}{"$worklat,$worklon"} = 1;
+			}
+			if (! $counted{$homestation}{"$homelat,$homelon"}) {
+				$area{"$homestation"} += $homeweight * $homearea;
+				$counted{$homestation}{"$homelat,$homelon"} = 1;
+			}
 			$dist{"$workstation-$homestation"} = $dist;
 		} else {
 			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
-			$warea{"$workstation"} += $workarea * $count;
-			$harea{"$homestation"} += $homearea * $count;
+			if (! $counted{$workstation}{"$worklat,$worklon"}) {
+				$area{"$workstation"} += $workweight * $workarea;
+				$counted{$workstation}{"$worklat,$worklon"} = 1;
+			}
+			if (! $counted{$homestation}{"$homelat,$homelon"}) {
+				$area{"$homestation"} += $homeweight * $homearea;
+				$counted{$homestation}{"$homelat,$homelon"} = 1;
+			}
 			$dist{"$homestation-$workstation"} = $dist;
 		}
 	}
@@ -187,8 +199,8 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.15107 * exp(log($sum{$station}) * 0.791789),
-			$wweight{$station}, $hweight{$station});
+		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.15107 * exp(log($sum{$station}) * 0.791789),
+			$wweight{$station}, $hweight{$station}, $area{$station});
 	}
 
 	exit(0);
