@@ -19,11 +19,11 @@ The model predicts ridership of existing stations with a geometric standard devi
 meaning we can be 95% confident that the ridership will not be lower than
 44% of this prediction or greater than 225% of it.
 
-I consider it somewhat unlikely (1 standard deviation out) that the
+I consider it somewhat unlikely (1 standard deviation above my prediction) that the
 three stations of the Berryessa Extension will have 23,000 riders per day
 at opening [as predicted](http://www.vta.org/bart/faq).
 I predict 4369 when Warm Springs alone opens, and 15,539 for the three stations together.
-Maybe by 23,000 they mean both entries and exits, which wouldn't be far off.
+Maybe by 23,000 they mean both entries and exits, in which case I am optimistic.
 
 The 55,000 [projected daily riders](http://vtaorgcontent.s3-us-west-1.amazonaws.com/Site_Content/BARTPhase2-ScopingPresentation-50212.pdf)
 of the remaning 4 stations is more unlikely, 2 standard deviations above my prediction.
@@ -57,6 +57,6 @@ The stages are:
     This adjustment used to seem meaningful but no longer does.
   * Scale the probability to match the actual station-to-station ridership counts: 1282600 times the 0.8th power of the probability.
   * Sum the estimated station-to-station ridership count for each station pair
-  * For each station, scale it again to match the station totals by calculating 2.15 times the 0.792power of the station total.
+  * For each station, scale it again to match the station totals by calculating 2.15 times the 0.792th power of the station total.
  
 There are a lot of regression-to-the-mean problems along the way, but it's not too bad.
