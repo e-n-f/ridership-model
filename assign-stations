@@ -7,7 +7,7 @@ $pi = 4 * atan2(1, 1);
 $ex = $ARGV[0];
 $ex = 0.5625;
 
-open(IN, "names-corrected-centers");
+open(IN, "names-official-centers");
 while (<IN>) {
 	# 60390 Powell PL bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
 
@@ -119,6 +119,14 @@ while (<IN>) {
 	$latd = $lat{$workstation} - $lat{$homestation};
 	$lond = ($lon{$workstation} - $lon{$homestation}) * $rat;
 	$dist = sqrt($latd * $latd + $lond * $lond) / $foot;
+
+	if (0) {
+		# in mode-points format from station profile study
+		for ($i = 0; $i < $count; $i++) {
+			print "? $workstation work $worklat,$worklon $lat{$workstation},$lon{$workstation} $dist\n";
+			print "? $homestation home $homelat,$homelon $lat{$homestation},$lon{$homestation} $dist\n";
+		}
+	}
 
 	$workweight = pdf($workdistance, 7.13947, 1.03404) / exp(log($workdistance) * $ex);
 	$homeweight = pdf($homedistance, 8.64499, 1.20751) / exp(log($homedistance) * $ex);

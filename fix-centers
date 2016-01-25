@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+# Station profile study modeled distance is in terms of
+# official location of station (from GTFS) not location on study map.
+
+# So this is merging the updated ridership counts and the 3 new stations
+# with the locations from the official centers
+
+open(IN, "/data/data/bart-ridership/git/names-official-centers");
+while (<IN>) {
+	($count, $name, $rest) = split(/ /, $_, 3);
+	$count{$name} = $count;
+	$rest{$name} = $rest;
+}
+close(IN);
+
+open(IN, "names-corrected-centers");
+while (<IN>) {
+	($count, $name, $rest) = split(/ /, $_, 3);
+
+	if ($rest{$name} ne "") {
+		print "$count $name $rest{$name}";
+	} else {
+		print "$count $name $rest";
+	}
+}
