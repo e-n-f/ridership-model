@@ -16,11 +16,11 @@ close(IN);
 
 open(IN, "names-corrected-centers");
 while (<IN>) {
-	($count, $name, $rest) = split(/ /, $_, 3);
+	($count, $name, $code, $rest) = split(/ /, $_, 4);
 
 	if ($rest{$name} ne "") {
-		print "$count $name $rest{$name}";
+		print "$count $name $code $rest{$name}";
 	} else {
-		print "$count $name $rest";
+		print "$count $name $code $rest";
 	}
 }
