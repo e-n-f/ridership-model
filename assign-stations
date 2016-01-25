@@ -7,6 +7,20 @@ $pi = 4 * atan2(1, 1);
 $ex = $ARGV[0];
 $ex = 0.5625;
 
+# potential work-ends within 10 miles:
+# lognormal distribution of employment locations by distance from stations
+# f(x) = a * (.5 + .5 * erf((log(x) - u) / (sqrt(2) * o)))
+# fit f(x) "potential-access-work" using 6:0 via a, u, o
+# a               = 1.69765e+06      +/- 127.1        (0.007489%)
+# u               = 8.57             +/- 0.0001474    (0.00172%)
+# o               = 1.37114          +/- 0.0001123    (0.008191%)
+
+# potential home-ends within 10 miles:
+# lognormal distribution of home locations of employed people by distance from stations
+# a               = 1.43479e+06      +/- 43.44        (0.003027%)
+# u               = 8.99065          +/- 3.931e-05    (0.0004372%)
+# o               = 0.887246         +/- 3.204e-05    (0.003611%)
+
 open(IN, "names-official-centers");
 while (<IN>) {
 	# 60390 Powell PL bart-home-3-07.svg bart-other-2-08.svg 37.784050,-122.407565
@@ -123,8 +137,12 @@ while (<IN>) {
 	if (0) {
 		# in mode-points format from station profile study
 		for ($i = 0; $i < $count; $i++) {
-			print "? $workstation work $worklat,$worklon $lat{$workstation},$lon{$workstation} $dist\n";
-			print "? $homestation home $homelat,$homelon $lat{$homestation},$lon{$homestation} $dist\n";
+			if ($workstation ne "" && $workdistance < 10 * 5280) {
+				print "? $workstation work $worklat,$worklon $lat{$workstation},$lon{$workstation} $workdistance\n";
+			}
+			if ($homestation ne "" && $homedistance < 10 * 5280) {
+				print "? $homestation home $homelat,$homelon $lat{$homestation},$lon{$homestation} $homedistance\n";
+			}
 		}
 	}
 
