@@ -146,8 +146,13 @@ while (<IN>) {
 		}
 	}
 
-	$workweight = pdf($workdistance, 7.13947, 1.03404) / exp(log($workdistance) * $ex);
-	$homeweight = pdf($homedistance, 8.64499, 1.20751) / exp(log($homedistance) * $ex);
+	# This is an immense cheat but keeps Berkeley, Lake Merritt, and Civic Center from
+	# predicting off the charts because of employment right on top of the station
+	if ($homedistance < 500) { $homedistance = 500; }
+	if ($workdistance < 500) { $workdistance = 500; }
+
+	$workweight = pdf($workdistance, 7.13947, 1.03404) / pdf($workdistance, 8.57, 1.37114);
+	$homeweight = pdf($homedistance, 8.64499, 1.20751) / pdf($homedistance, 8.99065, 0.887246);
 
 	if ($workstation ne "" && $homestation ne "") {
 		if ($workstation le $homestation) {
@@ -184,18 +189,19 @@ while (<IN>) {
 
 # Determining empirical boost in trip frequency for longer trips
 #
-# f(x) = m * x ** a
+# f(x) = abs(m) * x ** a
 # fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
-# a = 0.981606
+# m               = 4.83842e-05      +/- 2.784e-05    (57.55%)
+# a               = 0.701461         +/- 0.05186      (7.393%)
 
 # Determining scaling from LEHD commute counts to BART trip counts
 #
-# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.981606))):(log($3)) via m, a
-# m = 1.2826e+06
-# a = 0.806351
+# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.701461))):(log($3)) via m, a
+# m               = 0.0101966        +/- 0.002998     (29.4%)
+# a               = 0.641619         +/- 0.01955      (3.048%)
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 1.2826e+06 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.981606)) * 0.806351);
+		$val = 0.0101966 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701461)) * 0.641619);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -214,8 +220,8 @@ if (0) {
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
-# m               = 2.15107          +/- 1.995        (92.73%)
-# a               = 0.791789         +/- 0.09027      (11.4%)
+# m               = 1.82615          +/- 1.756        (96.13%)
+# a               = 0.739919         +/- 0.08573      (11.59%)
 
 ### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
 ### set dummy x, y, z
@@ -225,7 +231,7 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 2.15107 * exp(log($sum{$station}) * 0.791789),
+		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 1.82615 * exp(log($sum{$station}) * 0.739919),
 			$wweight{$station}, $hweight{$station}, $area{$station});
 	}
 
