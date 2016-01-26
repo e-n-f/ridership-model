@@ -9,17 +9,18 @@ $ex = 0.5625;
 
 # potential work-ends within 10 miles:
 # lognormal distribution of employment locations by distance from stations
+# awk '(NR % 100 == 0)' potential-access-work  > potential-access-work-2m
 # f(x) = a * (.5 + .5 * erf((log(x) - u) / (sqrt(2) * o)))
-# fit f(x) "potential-access-work" using 6:0 via a, u, o
-# a               = 1.69765e+06      +/- 127.1        (0.007489%)
-# u               = 8.57             +/- 0.0001474    (0.00172%)
-# o               = 1.37114          +/- 0.0001123    (0.008191%)
+# fit f(x) "potential-access-work-2m" using 6:0 via a, u, o
+# a               = 1.69762e+06      +/- 4093         (0.2411%)
+# u               = 11.754           +/- 0.004162     (0.03541%)
+# o               = 1.83484          +/- 0.00125      (0.06813%)
 
 # potential home-ends within 10 miles:
 # lognormal distribution of home locations of employed people by distance from stations
-# a               = 1.43479e+06      +/- 43.44        (0.003027%)
-# u               = 8.99065          +/- 3.931e-05    (0.0004372%)
-# o               = 0.887246         +/- 3.204e-05    (0.003611%)
+# a               = 669569           +/- 576.7        (0.08612%)
+# u               = 10.1868          +/- 0.0009673    (0.009495%)
+# o               = 0.950885         +/- 0.0004452    (0.04681%)
 
 open(IN, "names-official-centers");
 while (<IN>) {
@@ -66,9 +67,11 @@ while (<IN>) {
 sub find {
 	my ($lat, $lon) = @_;
 
-	if ($distance{$lat}{$lon} ne "") {
-		return ($station{$lat}{$lon}, $distance{$lat}{$lon});
+	if (defined $distance{$lat}{$lon}) {
+		return %{$distance{$lat}{$lon}};
 	}
+
+	my %ret = ();
 
 	my $best = "";
 	my $bestd = 4 * 5280;
@@ -84,18 +87,15 @@ sub find {
 				my $lond = ($lon - $lon{$c}) * $rat;
 				my $d = sqrt($latd * $latd + $lond * $lond) / $foot;
 
-				if ($d < $bestd) {
-					$bestd = $d;
-					$best = $c;
+				if ($d < 10 * 5280) {
+					$ret{$c} = $d;
 				}
 			}
 		}
 	}
 
-	$station{$lat}{$lon} = $best;
-	$distance{$lat}{$lon} = $bestd;
-
-	return ($best, $bestd);
+	%{$distance{$lat}{$lon}} = %ret;
+	return %ret;
 }
 
 sub pdf {
@@ -124,90 +124,98 @@ while (<IN>) {
 	$workarea = $fields[17] + $fields[18];
 	$homearea = $fields[19] + $fields[20];
 
-	($workstation, $workdistance) = find($worklat, $worklon);
-	($homestation, $homedistance) = find($homelat, $homelon);
+	%workfound = find($worklat, $worklon);
+	%homefound = find($homelat, $homelon);
 
-	next if ($homestation eq $workstation);
+	for $workstation (keys(%workfound)) {
+		$workdistance = $workfound{$workstation};
 
-	$rat = cos($lat{$workstation} * $pi / 180);
-	$latd = $lat{$workstation} - $lat{$homestation};
-	$lond = ($lon{$workstation} - $lon{$homestation}) * $rat;
-	$dist = sqrt($latd * $latd + $lond * $lond) / $foot;
+		for $homestation (keys(%homefound)) {
+			$homedistance = $homefound{$homestation};
 
-	if (0) {
-		# in mode-points format from station profile study
-		for ($i = 0; $i < $count; $i++) {
-			if ($workstation ne "" && $workdistance < 10 * 5280) {
-				print "? $workstation work $worklat,$worklon $lat{$workstation},$lon{$workstation} $workdistance\n";
+			next if ($homestation eq $workstation);
+
+			$rat = cos($lat{$workstation} * $pi / 180);
+			$latd = $lat{$workstation} - $lat{$homestation};
+			$lond = ($lon{$workstation} - $lon{$homestation}) * $rat;
+			$dist = sqrt($latd * $latd + $lond * $lond) / $foot;
+
+			if (0) {
+				# in mode-points format from station profile study
+				for ($i = 0; $i < $count; $i++) {
+					if ($workstation ne "" && $workdistance < 10 * 5280) {
+						print "? $workstation work $worklat,$worklon $lat{$workstation},$lon{$workstation} $workdistance\n";
+					}
+					if ($homestation ne "" && $homedistance < 10 * 5280) {
+						print "? $homestation home $homelat,$homelon $lat{$homestation},$lon{$homestation} $homedistance\n";
+					}
+				}
 			}
-			if ($homestation ne "" && $homedistance < 10 * 5280) {
-				print "? $homestation home $homelat,$homelon $lat{$homestation},$lon{$homestation} $homedistance\n";
+
+			# This is an immense cheat but keeps Berkeley, Lake Merritt, and Civic Center from
+			# predicting off the charts because of employment right on top of the station
+			if ($homedistance < 500) { $homedistance = 500; }
+			if ($workdistance < 500) { $workdistance = 500; }
+
+			$workweight = pdf($workdistance, 7.13947, 1.03404) / pdf($workdistance, 11.754, 1.83484);
+			$homeweight = pdf($homedistance, 8.64499, 1.20751) / pdf($homedistance, 10.1868, 0.950885);
+
+			if ($workstation ne "" && $homestation ne "") {
+				if ($workstation le $homestation) {
+					$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
+					$wweight{"$workstation"} += $workweight * $count;
+					$hweight{"$homestation"} += $homeweight * $count;
+					if (! $counted{$workstation}{"$worklat,$worklon"}) {
+						$area{"$workstation"} += $workweight * $workarea;
+						$counted{$workstation}{"$worklat,$worklon"} = 1;
+					}
+					if (! $counted{$homestation}{"$homelat,$homelon"}) {
+						$area{"$homestation"} += $homeweight * $homearea;
+						$counted{$homestation}{"$homelat,$homelon"} = 1;
+					}
+					$dist{"$workstation-$homestation"} = $dist;
+				} else {
+					$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+					$wweight{"$workstation"} += $workweight * $count;
+					$hweight{"$homestation"} += $homeweight * $count;
+					if (! $counted{$workstation}{"$worklat,$worklon"}) {
+						$area{"$workstation"} += $workweight * $workarea;
+						$counted{$workstation}{"$worklat,$worklon"} = 1;
+					}
+					if (! $counted{$homestation}{"$homelat,$homelon"}) {
+						$area{"$homestation"} += $homeweight * $homearea;
+						$counted{$homestation}{"$homelat,$homelon"} = 1;
+					}
+					$dist{"$homestation-$workstation"} = $dist;
+				}
+			}
+
+		# Determining model for individual origin-destination pairs.
+		# With first-stage output turned on below:
+
+		# Determining empirical boost in trip frequency for longer trips
+		#
+		# f(x) = abs(m) * x ** a
+		# fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
+		# m               = -3.58887e-30     +/- 5.477e-30    (152.6%)
+		# a               = 1.72985          +/- 0.1375       (7.95%)
+
+		# Determining scaling from LEHD commute counts to BART trip counts
+		#
+		# fit (log(f(x))) "assigned" using (($2 * ($4 ** 1.72985))):(log($3)) via m, a
+		# m               = 0.0101966        +/- 0.002998     (29.4%)
+		# a               = 0.641619         +/- 0.01955      (3.048%)
+
+			if ($workstation ne "" && $homestation ne "") {
+				$val = 0.0101966 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701461)) * 0.641619);
+				$sum{$homestation} += $val;
+				$sum{$workstation} += $val;
 			}
 		}
-	}
-
-	# This is an immense cheat but keeps Berkeley, Lake Merritt, and Civic Center from
-	# predicting off the charts because of employment right on top of the station
-	if ($homedistance < 500) { $homedistance = 500; }
-	if ($workdistance < 500) { $workdistance = 500; }
-
-	$workweight = pdf($workdistance, 7.13947, 1.03404) / pdf($workdistance, 8.57, 1.37114);
-	$homeweight = pdf($homedistance, 8.64499, 1.20751) / pdf($homedistance, 8.99065, 0.887246);
-
-	if ($workstation ne "" && $homestation ne "") {
-		if ($workstation le $homestation) {
-			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
-			$wweight{"$workstation"} += $workweight * $count;
-			$hweight{"$homestation"} += $homeweight * $count;
-			if (! $counted{$workstation}{"$worklat,$worklon"}) {
-				$area{"$workstation"} += $workweight * $workarea;
-				$counted{$workstation}{"$worklat,$worklon"} = 1;
-			}
-			if (! $counted{$homestation}{"$homelat,$homelon"}) {
-				$area{"$homestation"} += $homeweight * $homearea;
-				$counted{$homestation}{"$homelat,$homelon"} = 1;
-			}
-			$dist{"$workstation-$homestation"} = $dist;
-		} else {
-			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
-			$wweight{"$workstation"} += $workweight * $count;
-			$hweight{"$homestation"} += $homeweight * $count;
-			if (! $counted{$workstation}{"$worklat,$worklon"}) {
-				$area{"$workstation"} += $workweight * $workarea;
-				$counted{$workstation}{"$worklat,$worklon"} = 1;
-			}
-			if (! $counted{$homestation}{"$homelat,$homelon"}) {
-				$area{"$homestation"} += $homeweight * $homearea;
-				$counted{$homestation}{"$homelat,$homelon"} = 1;
-			}
-			$dist{"$homestation-$workstation"} = $dist;
-		}
-	}
-
-# Determining model for individual origin-destination pairs.
-# With first-stage output turned on below:
-
-# Determining empirical boost in trip frequency for longer trips
-#
-# f(x) = abs(m) * x ** a
-# fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
-# m               = 4.83842e-05      +/- 2.784e-05    (57.55%)
-# a               = 0.701461         +/- 0.05186      (7.393%)
-
-# Determining scaling from LEHD commute counts to BART trip counts
-#
-# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.701461))):(log($3)) via m, a
-# m               = 0.0101966        +/- 0.002998     (29.4%)
-# a               = 0.641619         +/- 0.01955      (3.048%)
-
-	if ($workstation ne "" && $homestation ne "") {
-		$val = 0.0101966 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701461)) * 0.641619);
-		$sum{$homestation} += $val;
-		$sum{$workstation} += $val;
 	}
 }
 
-if (0) {
+if (1) {
 	for $pair (sort(keys(%weight))) {
 		printf("%s %.32f %d %d\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair});
 	}
@@ -227,7 +235,7 @@ if (0) {
 ### set dummy x, y, z
 ### fit log(f(x, y, z)) "assigned" using 2:5:6:(log($3)) via m1, a1, m2, a2, m3, a3
 
-if (1) {
+if (0) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
