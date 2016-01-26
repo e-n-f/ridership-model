@@ -9,7 +9,7 @@ $foot = .00000274;
 $pi = 4 * atan2(1, 1);
 $buffer = 20 * 5280 * $foot;
 
-open(IN, "names-corrected-centers");
+open(IN, "names-official-centers");
 while (<IN>) {
 	chomp;
 	next if /#/;
