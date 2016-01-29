@@ -34,6 +34,7 @@ while (<IN>) {
 	}
 	($lat, $lon) = split(/,/, $where);
 
+	$code =~ s/-/_/g;
 	$name{$code} = $name;
 	$lat{$code} = $lat;
 	$lon{$code} = $lon;
@@ -62,6 +63,21 @@ while (<IN>) {
 		$count{$name} += $fields[$i];
 	}
 }
+close(IN);
+
+open(IN, "May-2012-Metrorail-OD-Table-by-Time-of-Day-and-Day-of-Week.csv");
+while (<IN>) {
+	chomp;
+	s/-/_/g;
+	s/ /_/g;
+	($a, $b, $tod, $count) = split(/,/);
+	if ($a lt $b) {
+		$count{"$a-$b"} += $count;
+	} else {
+		$count{"$b-$a"} += $count;
+	}
+}
+close(IN);
 
 sub find {
 	my ($lat, $lon) = @_;
@@ -161,10 +177,12 @@ while (<IN>) {
 			$hweight{"$homestation"} += $homeweight * $count;
 			if (! $counted{$workstation}{"$worklat,$worklon"}) {
 				$area{"$workstation"} += $workweight * $workarea;
+				$blocks{"$workstation"} += $workweight;
 				$counted{$workstation}{"$worklat,$worklon"} = 1;
 			}
 			if (! $counted{$homestation}{"$homelat,$homelon"}) {
 				$area{"$homestation"} += $homeweight * $homearea;
+				$blocks{"$homestation"} += $homeweight;
 				$counted{$homestation}{"$homelat,$homelon"} = 1;
 			}
 			$dist{"$workstation-$homestation"} = $dist;
@@ -174,10 +192,12 @@ while (<IN>) {
 			$hweight{"$homestation"} += $homeweight * $count;
 			if (! $counted{$workstation}{"$worklat,$worklon"}) {
 				$area{"$workstation"} += $workweight * $workarea;
+				$blocks{"$workstation"} += $workweight;
 				$counted{$workstation}{"$worklat,$worklon"} = 1;
 			}
 			if (! $counted{$homestation}{"$homelat,$homelon"}) {
 				$area{"$homestation"} += $homeweight * $homearea;
+				$blocks{"$homestation"} += $homeweight;
 				$counted{$homestation}{"$homelat,$homelon"} = 1;
 			}
 			$dist{"$homestation-$workstation"} = $dist;
@@ -209,7 +229,8 @@ while (<IN>) {
 
 if (0) {
 	for $pair (sort(keys(%weight))) {
-		printf("%s %.32f %d %d\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair});
+		($s1, $s2) = split(/-/, $pair);
+		printf("%s %.32f %d %d %.16f %.16f %.16f %.16f\n", $pair, $weight{$pair}, $count{$pair}, $dist{$pair}, ($wweight{$s1} + $hweight{$s1}) / $area{$s1}, ($wweight{$s2} + $hweight{$s2}) / $area{$s2}, $blocks{$s1} / $area{$s1}, $blocks{$s2} / $area{$s2});
 	}
 
 	exit(0);
