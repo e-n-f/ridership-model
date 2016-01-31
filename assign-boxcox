@@ -189,8 +189,6 @@ while (<IN>) {
 
 	# This is an immense cheat but keeps Berkeley, Lake Merritt, and Civic Center from
 	# predicting off the charts because of employment right on top of the station
-	if ($homedistance < 500) { $homedistance = 500; }
-	if ($workdistance < 500) { $workdistance = 500; }
 
 	$workweight = (pdf($workdistance, 133686, 990, 37.4624, 0.312) +
 		       pdf($workdistance, 37600, 6376, 1.00334, -0.588)) /
@@ -202,7 +200,7 @@ while (<IN>) {
 
 	if ($workstation ne "" && $homestation ne "") {
 		if ($workstation le $homestation) {
-			$weight{"$workstation-$homestation"} += $workweight * $homeweight * $count;
+			$weight{"$workstation-$homestation"} += sqrt($workweight * $homeweight) * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
 			if (! $counted{$workstation}{"$worklat,$worklon"}) {
@@ -217,7 +215,7 @@ while (<IN>) {
 			}
 			$dist{"$workstation-$homestation"} = $dist;
 		} else {
-			$weight{"$homestation-$workstation"} += $workweight * $homeweight * $count;
+			$weight{"$homestation-$workstation"} += sqrt($workweight * $homeweight) * $count;
 			$wweight{"$workstation"} += $workweight * $count;
 			$hweight{"$homestation"} += $homeweight * $count;
 			if (! $counted{$workstation}{"$worklat,$worklon"}) {
@@ -240,18 +238,18 @@ while (<IN>) {
 # Determining empirical boost in trip frequency for longer trips
 #
 # f(x) = abs(m) * x ** a
-# fit log(f(x)) "assigned" using 4:(log($3/$2)) via m, a
-# m               = 4.83842e-05      +/- 2.784e-05    (57.55%)
-# a               = 0.701461         +/- 0.05186      (7.393%)
+# fit log(f(x)) "pairs" using 4:(log($3/$2)) via m, a
+# m               = 0.150219         +/- 0.08522      (56.73%)
+# a               = 0.276004         +/- 0.05113      (18.52%)
 
 # Determining scaling from LEHD commute counts to BART trip counts
 #
-# fit (log(f(x))) "assigned" using (($2 * ($4 ** 0.701461))):(log($3)) via m, a
-# m               = 0.0101966        +/- 0.002998     (29.4%)
-# a               = 0.641619         +/- 0.01955      (3.048%)
+# fit (log(f(x))) "pairs" using (($2 * ($4 ** 0.276004))):(log($3)) via m, a
+# m               = 0.357028         +/- 0.08762      (24.54%)
+# a               = 0.874232         +/- 0.03517      (4.023%)
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 0.0101966 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.701461)) * 0.641619);
+		$val = 0.357028 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.276004)) * 0.874232);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -271,8 +269,8 @@ if (0) {
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
-# m               = 1.82615          +/- 1.756        (96.13%)
-# a               = 0.739919         +/- 0.08573      (11.59%)
+# m               = 7.04292          +/- 5.57         (79.09%)
+# a               = 0.866769         +/- 0.09863      (11.38%)
 
 ### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
 ### set dummy x, y, z
@@ -282,7 +280,7 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 1.82615 * exp(log($sum{$station}) * 0.739919),
+		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 7.04292 * exp(log($sum{$station}) * 0.866769),
 			$wweight{$station}, $hweight{$station}, $area{$station});
 	}
 
