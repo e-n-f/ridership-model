@@ -11,7 +11,7 @@ sub correlate {
 	@x = @{$_[0]};
 	@y = @{$_[1]};
 
-	print "---- x @x, y @y\n";
+	# print "---- x @x, y @y\n";
 
 	my $n = $#x + 1;
 
@@ -36,9 +36,9 @@ sub correlate {
 	return ($n * $xysum - $xsum * $ysum) / (sqrt($n * $x2sum - $xsum * $xsum) * sqrt($n * $y2sum - $ysum * $ysum));
 }
 
-my @a = (1, 2, 3, 4, 5, 6);
-my @b = (2, 2, 3, 4, 5, 60);
-$c = correlate([@a], [@b]);
+# my @a = (1, 2, 3, 4, 5, 6);
+# my @b = (2, 2, 3, 4, 5, 60);
+# $c = correlate([@a], [@b]);
 # print "$c\n";
 
 # @exps = (.1, .3, .5, .7, 1, 1.2);
@@ -240,7 +240,10 @@ while (<IN>) {
 
 	if ($workstation ne "" && $homestation ne "") {
 		$we = 2.25;
-		$he = 0.65;
+		$he = 0.65; # best correlation, but bad linearity
+
+		$we = .5;
+		$he = .5;
 
 		# for $we (@exps) {
 			# for $he (@exps) {
@@ -327,7 +330,7 @@ if (0) {
 	exit(0);
 }
 
-if (1) {
+if (0) {
 	for $pair (sort(keys(%weight))) {
 		($s1, $s2) = split(/-/, $pair);
 		printf("%s %.32f %d %d %.16f %.16f %.16f %.16f\n", $pair, $weight{$pair}{$we}{$he}, $count{$pair}, $dist{$pair}, ($wweight{$s1} + $hweight{$s1}) / $area{$s1}, ($wweight{$s2} + $hweight{$s2}) / $area{$s2}, $blocks{$s1} / $area{$s1}, $blocks{$s2} / $area{$s2});
