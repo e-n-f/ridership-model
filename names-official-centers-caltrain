@@ -1,0 +1,78 @@
+# May, 2015 exits
+# frequency from google_transit_20160208_v1.zip
+46411 Embarcadero EM bart-home-2-04.svg bart-other-1-14.svg 37.792976,-122.396742 570
+44281 Montgomery MT bart-home-2-13.svg bart-other-2-07.svg 37.789256,-122.401407 570
+28673 Powell PL bart-home-3-07.svg bart-other-2-08.svg 37.784991,-122.406857 558
+22710 Civic_Center CC bart-home-1-10.svg bart-other-1-08.svg 37.779528,-122.413756 558
+13832 12th_Street 12 bart-home-1-02.svg bart-other-1-02.svg 37.803664,-122.271604 468
+13196 Berkeley BK bart-home-1-15.svg bart-other-1-12.svg 37.869867,-122.268045 276
+13127 16th_Street 16 bart-home-1-03.svg bart-other-1-03.svg 37.765062,-122.419694 558
+13121 24th_Street 24 bart-home-1-05.svg bart-other-1-05.svg 37.752254,-122.418466 558
+12633 19th_Street 19 bart-home-1-04.svg bart-other-1-04.svg 37.80787,-122.269029 468
+11410 Balboa_Park BP bart-home-1-07.svg bart-other-1-07.svg 37.72198087,-122.4474142 546
+9445 Daly_City DC bart-home-1-14.svg 37.70612055,-122.4690807 546
+9373 MacArthur MA bart-home-2-11.svg bart-other-2-05.svg 37.828415,-122.267227 468
+8976 El_Cerrito_del_Norte EN bart-home-2-02.svg 37.925655,-122.317269 276
+8942 Fremont FM bart-home-2-05.svg bart-other-2-02.svg 37.557355,-121.9764 256
+8697 Fruitvale FV bart-home-2-06.svg 37.774963,-122.224274 406
+8527 Coliseum CL bart-home-1-11.svg bart-other-1-09.svg 37.754006,-122.197273 783
+7797 Dublin_Pleasanton ED bart-home-1-16.svg bart-other-1-13.svg 37.701695,-121.900367 152
+7470 Glen_Park GP bart-home-2-07.svg 37.732921,-122.434092 546
+7284 Lake_Merritt LM bart-home-2-10.svg bart-other-2-04.svg 37.797484,-122.265609 406
+7105 SF_Airport SO 37.616044,-122.392292 151
+7052 West_Oakland OW bart-home-3-16.svg 37.80467476,-122.2945822 570
+6963 Pleasant_Hill PH bart-home-3-06.svg 37.928403,-122.056013 192
+6875 Walnut_Creek WC bart-home-3-15.svg bart-other-2-11.svg 37.905628,-122.067423 186
+6504 Millbrae MB bart-home-2-12.svg bart-other-2-06.svg 37.599787,-122.38666 151
+6346 Concord CN bart-home-1-13.svg bart-other-1-10.svg 37.973737,-122.029095 164
+6171 Pittsburg_Bay_Pt WP bart-home-3-05.svg 38.018914,-121.945154 160
+6161 Rockridge RR bart-home-3-09.svg bart-other-2-09.svg 37.844601,-122.251793 186
+6090 San_Leandro SL bart-home-3-11.svg 37.72261921,-122.1613112 406
+6015 Bay_Fair BF bart-home-1-08.svg 37.697185,-122.126871 408
+5727 Ashby AS bart-home-1-06.svg bart-other-1-06.svg 37.853024,-122.26978 276
+5350 Hayward HY bart-home-2-08.svg bart-other-2-03.svg 37.670399,-122.087967 256
+5001 Union_City UC bart-home-3-14.svg 37.591208,-122.017867 256
+4983 North_Berkeley NB bart-home-3-03.svg 37.87404,-122.283451 276
+4947 El_Cerrito_Plaza EP bart-home-2-03.svg 37.9030588,-122.2992715 276
+4487 Colma CM bart-home-1-12.svg 37.684638,-122.466233 275
+4435 Richmond RM bart-home-3-08.svg 37.936887,-122.353165 276
+3880 Lafayette LF bart-home-2-09.svg 37.893394,-122.123801 186
+3876 San_Bruno SB bart-home-3-10.svg 37.637753,-122.416038 275
+3635 West_Dublin/Pleasanton WD 37.69974,-121.92816 152
+3491 South_SF SS bart-home-3-13.svg 37.664174,-122.444116 275
+3157 South_Hayward SH bart-home-3-12.svg 37.63479954,-122.0575506 256
+3022 Orinda OR bart-home-3-04.svg 37.87836087,-122.1837911 186
+2885 Castro_Valley CV bart-home-1-09.svg 37.690754,-122.075567 152
+2670 North_Concord NC bart-home-3-02.svg 38.003275,-122.024597 165
+1583 Oakland_Airport OA 37.71322,-122.21227 377
+# 2014 ridership http://www.caltrain.com/Assets/_Marketing/pdf/2015+Annual+Passenger+Counts.pdf
+# 2013 service frequency http://www.caltrain.com/Assets/Caltrain+Modernization+Program/FEIR/App+D+Part+3.pdf
+12160 San_Francisco_Caltrain_Station ctsf 37.776439,-122.394323 92
+1427 22nd_Street_Caltrain_Station ct22 37.757674,-122.392636 58
+246 Bayshore_Caltrain_Station ctba 37.709544,-122.401318 40
+432 So._San_Francisco_Caltrain_Station ctssf 37.655852,-122.405429 46
+532 San_Bruno_Caltrain_Station ctsb 37.631106,-122.412018 56
+3291 Millbrae_Caltrain_Station ctmi 37.600006,-122.386534 82
+953 Burlingame_Caltrain_Station ctbu 37.579719,-122.345266 58
+1851 San_Mateo_Caltrain_Station ctsmat 37.568209,-122.323933 70
+350 Hayward_Park_Caltrain_Station ctha 37.552346,-122.308916 40
+2555 Hillsdale_Caltrain_Station cthi 37.537503,-122.298001 74
+669 Belmont_Caltrain_Station ctbe 37.520504,-122.276075 46
+1372 San_Carlos_Caltrain_Station ctsc 37.507361,-122.260365 64
+2947 Redwood_City_Caltrain_Station ctrwc 37.485412,-122.231957 72
+1668 Menlo_Park_Caltrain_Station ctmp 37.454604,-122.182518 66
+6156 Palo_Alto_Caltrain_Station ctpa 37.443070,-122.164900 86
+1408 California_Ave_Caltrain_Station ctca 37.428835,-122.142703 52
+730 San_Antonio_Caltrain_Station ctsa 37.407157,-122.107231 46
+4274 Mountain_View_Caltrain_Station ctmv 37.393879,-122.076327 80
+2655 Sunnyvale_Caltrain_Station ctsu 37.377589,-122.030116 62
+788 Lawrence_Caltrain_Station ctla 37.370815,-121.997258 56
+909 Santa_Clara_Caltrain_Station ctscl 37.352915,-121.936376 58
+92 College_Park_Caltrain_Station ctco 37.342170,-121.914998 4
+3714 San_Jose_Caltrain_Station ctsj 37.329392,-121.902181 92
+970 Tamien_Caltrain_Station ctta 37.311640,-121.883900 40
+33 Capitol_Caltrain_Station ctcap 37.284359,-121.841589 6
+83 Blossom_Hill_Caltrain_Station ctbl 37.252801,-121.797369 6
+149 Morgan_Hill_Caltrain_Station ctmh 37.129081,-121.650721 6
+57 San_Martin_Caltrain_Station ctsmar 37.085775,-121.610809 6
+140 Gilroy_Caltrain_Station ctgi 37.003606,-121.566497 6
