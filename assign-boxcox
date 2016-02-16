@@ -68,10 +68,9 @@ while (<IN>) {
 	next if /#/;
 
 	chomp;
-	($riders, $name, $code, $where) = split(/ /, $_, 4);
-	while ($where =~ s/.*svg //) {
-		;
-	}
+	($riders, $name, $code, @rest) = split(/ /);
+	$where = $rest[$#rest - 1];
+	$freq = $rest[$#rest];
 	($lat, $lon) = split(/,/, $where);
 
 	$code =~ s/-/_/g;
@@ -79,6 +78,7 @@ while (<IN>) {
 	$lat{$code} = $lat;
 	$lon{$code} = $lon;
 	$riders{$code} = $riders;
+	$freq{$code} = $freq;
 
 	push @{$cand{int($lat / $bucket)}{int($lon / $bucket)}}, $code;
 }
@@ -355,8 +355,8 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f\n", $name{$station}, $sum{$station}, $riders{$station}, 7.04292 * exp(log($sum{$station}) * 0.866769),
-			$wweight{$station}, $hweight{$station}, $area{$station});
+		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 7.04292 * exp(log($sum{$station}) * 0.866769),
+			$wweight{$station}, $hweight{$station}, $area{$station}, $freq{$station});
 	}
 
 	exit(0);
