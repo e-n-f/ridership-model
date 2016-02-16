@@ -245,6 +245,12 @@ while (<IN>) {
 		$we = .5;
 		$he = .5;
 
+		if ($freq{$workstation} < $freq{$homestation}) {
+			$f = $freq{$workstation};
+		} else {
+			$f = $freq{$homestation};
+		}
+
 		# for $we (@exps) {
 			# for $he (@exps) {
 		{
@@ -265,6 +271,7 @@ while (<IN>) {
 						$counted{$homestation}{"$homelat,$homelon"} = 1;
 					}
 					$dist{"$workstation-$homestation"} = $dist;
+					$pairfreq{"$workstation-$homestation"} = $f;
 				} else {
 					$weight{"$homestation-$workstation"}{$we}{$he} += $w;
 					$wweight{"$workstation"} += $workweight * $count;
@@ -280,29 +287,33 @@ while (<IN>) {
 						$counted{$homestation}{"$homelat,$homelon"} = 1;
 					}
 					$dist{"$homestation-$workstation"} = $dist;
+					$pairfreq{"$homestation-$workstation"} = $f;
 				}
 			}
 		}
 	}
 
 # Determining model for individual origin-destination pairs.
-# With first-stage output turned on below:
+# With first-stage output turned on below
+# and names-official-centers limited to current BART stations:
 
-# Determining empirical boost in trip frequency for longer trips
-#
-# f(x) = abs(m) * x ** a
-# fit log(f(x)) "pairs" using 4:(log($3/$2)) via m, a
-# m               = 14.3062          +/- 5.136        (35.9%)
-# a               = -0.0922643       +/- 0.03431      (37.19%)
+# set dummy predicted, distance, freq
+# f(predicted, distance, freq) = a * predicted ** pe * distance ** de * freq ** fe
+# fit log(f(predicted, distance, freq)) "pairs" using 2:4:9:(log($3)) via a, pe, de, fe
+# plot "pairs" using (f($2, $4, $9)):3, predicted
 
-# Determining scaling from LEHD commute counts to BART trip counts
-#
-# fit (log(f(x))) "pairs" using (($2 * ($4 ** -0.0922643))):(log($3)) via m, a
-# m               = 0.357028         +/- 0.08762      (24.54%)
-# a               = 0.874232         +/- 0.03517      (4.023%)
+# a               = 0.000180615      +/- 0.0002016    (111.6%)
+# pe              = 0.799509         +/- 0.03774      (4.72%)
+# de              = 0.394573         +/- 0.06391      (16.2%)
+# fe              = 1.13509          +/- 0.1072       (9.448%)
+
+# a: multiplier
+# pe: exponent of predicted ridership
+# de: exponent of increased trip frequency of long trips
+# fe: exponent of increased trip frequency with more frequent train service
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 0.357028 * exp(log($workweight * $homeweight * $count * exp(log($dist) * 0.276004)) * 0.874232);
+		$val = 0.000180615 * exp(log($workweight * $homeweight) * 0.799509) * exp(log($dist) * 0.394573) * exp(log($f) * 1.13509);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -333,19 +344,20 @@ if (0) {
 if (0) {
 	for $pair (sort(keys(%weight))) {
 		($s1, $s2) = split(/-/, $pair);
-		printf("%s %.32f %d %d %.16f %.16f %.16f %.16f\n", $pair, $weight{$pair}{$we}{$he}, $count{$pair}, $dist{$pair}, ($wweight{$s1} + $hweight{$s1}) / $area{$s1}, ($wweight{$s2} + $hweight{$s2}) / $area{$s2}, $blocks{$s1} / $area{$s1}, $blocks{$s2} / $area{$s2});
+		printf("%s %.32f %d %d %.16f %.16f %.16f %.16f %d\n", $pair, $weight{$pair}{$we}{$he}, $count{$pair}, $dist{$pair}, ($wweight{$s1} + $hweight{$s1}) / $area{$s1}, ($wweight{$s2} + $hweight{$s2}) / $area{$s2}, $blocks{$s1} / $area{$s1}, $blocks{$s2} / $area{$s2}, $pairfreq{$pair});
 	}
 
 	exit(0);
 }
 
 # Then determining model for total at each station.
-# With second-stage output:
+# With second-stage output
+# (with both BART and Caltrain included):
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
-# m               = 7.04292          +/- 5.57         (79.09%)
-# a               = 0.866769         +/- 0.09863      (11.38%)
+# m               = 3.99459          +/- 1.546        (38.7%)
+# a               = 0.868371         +/- 0.04964      (5.717%)
 
 ### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
 ### set dummy x, y, z
@@ -355,7 +367,7 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 7.04292 * exp(log($sum{$station}) * 0.866769),
+		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 3.99459 * exp(log($sum{$station}) * 0.868371),
 			$wweight{$station}, $hweight{$station}, $area{$station}, $freq{$station});
 	}
 
