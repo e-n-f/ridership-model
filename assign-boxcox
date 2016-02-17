@@ -299,13 +299,13 @@ while (<IN>) {
 
 # set dummy predicted, distance, freq
 # f(predicted, distance, freq) = a * predicted ** pe * distance ** de * freq ** fe
-# fit log(f(predicted, distance, freq)) "pairs" using 2:4:9:(log($3)) via a, pe, de, fe
+# fit (f(predicted, distance, freq)) "pairs" using 2:4:9:(($3)) via a, pe, de, fe
 # plot "pairs" using (f($2, $4, $9)):3, predicted
 
-# a               = 0.000180615      +/- 0.0002016    (111.6%)
-# pe              = 0.799509         +/- 0.03774      (4.72%)
-# de              = 0.394573         +/- 0.06391      (16.2%)
-# fe              = 1.13509          +/- 0.1072       (9.448%)
+# a               = 0.00429905       +/- 0.002746     (63.87%)
+# pe              = 0.54929          +/- 0.01852      (3.371%)
+# de              = 0.308276         +/- 0.0289       (9.375%)
+# fe              = 1.01914          +/- 0.07437      (7.297%)
 
 # a: multiplier
 # pe: exponent of predicted ridership
@@ -313,7 +313,7 @@ while (<IN>) {
 # fe: exponent of increased trip frequency with more frequent train service
 
 	if ($workstation ne "" && $homestation ne "") {
-		$val = 0.000180615 * exp(log($workweight * $homeweight) * 0.799509) * exp(log($dist) * 0.394573) * exp(log($f) * 1.13509);
+		$val = 0.00429905 * exp(log($workweight * $homeweight) * 0.54929) * exp(log($dist) * 0.308276) * exp(log($f) * 1.01914);
 		$sum{$homestation} += $val;
 		$sum{$workstation} += $val;
 	}
@@ -356,8 +356,8 @@ if (0) {
 
 # f(x) = m * x ** a
 # fit log(f(x)) "assigned" using 2:(log($3)) via m, a
-# m               = 3.99459          +/- 1.546        (38.7%)
-# a               = 0.868371         +/- 0.04964      (5.717%)
+# m               = 1.95899          +/- 1.18         (60.25%)
+# a               = 0.741568         +/- 0.05714      (7.705%)
 
 ### f(x, y, z) = abs(m1) * x ** abs(a1) + abs(m2) * y ** abs(a2) + abs(m3) * z ** abs(a3)
 ### set dummy x, y, z
@@ -367,7 +367,7 @@ if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 3.99459 * exp(log($sum{$station}) * 0.868371),
+		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 1.95899 * exp(log($sum{$station}) * 0.741568),
 			$wweight{$station}, $hweight{$station}, $area{$station}, $freq{$station});
 	}
 
