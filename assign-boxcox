@@ -363,11 +363,27 @@ if (0) {
 ### set dummy x, y, z
 ### fit log(f(x, y, z)) "assigned" using 2:5:6:(log($3)) via m1, a1, m2, a2, m3, a3
 
+# f(pairs, dens1, dens2, freq) = a * pairs ** pe * dens1 ** de1 * dens2 ** de2 * freq ** fe
+# set dummy pairs, dens1, dens2, freq
+# fit log(f(pairs, dens1, dens2, freq)) "assigned" using 2:($5/$7):($6/$7):8:(log($3)) via a, pe, de1, de2, fe
+# plot "assigned" using (f($2, ($5/$7), ($6/$7), $8)):3, pairs
+#
+# a               = 6.49339          +/- 4.284        (65.97%)
+# pe              = 0.3344           +/- 0.05283      (15.8%)
+# de1             = 0.165227         +/- 0.03138      (18.99%)
+# de2             = -0.100011        +/- 0.04921      (49.2%)
+# fe              = 0.645254         +/- 0.05544      (8.592%)
+
 if (1) {
 	for $station (sort(keys(%sum))) {
 		next if $station eq "";
+		next if $wweight{$station} == 0 || $hweight{$station} == 0;
 
-		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station}, 1.95899 * exp(log($sum{$station}) * 0.741568),
+		printf("%s %.16f %d %d %.16f %.16f %.16f %d\n", $name{$station}, $sum{$station}, $riders{$station},
+			6.49339 * exp(log($sum{$station}) * 0.3344) *
+			exp(log($wweight{$station} / $area{$station}) * 0.165227) *
+			exp(log($hweight{$station} / $area{$station}) * -0.100011) *
+			exp(log($freq{$station}) * 0.645254),
 			$wweight{$station}, $hweight{$station}, $area{$station}, $freq{$station});
 	}
 
