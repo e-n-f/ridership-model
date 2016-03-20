@@ -227,9 +227,6 @@ while (<IN>) {
 		}
 	}
 
-	# This is an immense cheat but keeps Berkeley, Lake Merritt, and Civic Center from
-	# predicting off the charts because of employment right on top of the station
-
 	$workweight = (pdf($workdistance, 133686, 990, 37.4624, 0.312) +
 		       pdf($workdistance, 37600, 6376, 1.00334, -0.588)) /
 		      (10 * (pdf($workdistance, 155673, 4634.18, 7.78672, 0.065896) +
