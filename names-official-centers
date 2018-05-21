@@ -45,6 +45,9 @@
 2885 Castro_Valley CV bart-home-1-09.svg 37.690754,-122.075567 152
 2670 North_Concord NC bart-home-3-02.svg 38.003275,-122.024597 165
 1583 Oakland_Airport OA 37.71322,-122.21227 377
+x Warm_Springs/South_Fremont WARM 37.502171,-121.939313 176
+x Pittsburg_Center PCTR 38.016941,-121.889457 152
+x Antioch ANTC 37.995388,-121.780420 152
 # 2014 ridership http://www.caltrain.com/Assets/_Marketing/pdf/2015+Annual+Passenger+Counts.pdf
 # 2013 service frequency http://www.caltrain.com/Assets/Caltrain+Modernization+Program/FEIR/App+D+Part+3.pdf
 12160 San_Francisco_Caltrain_Station ctsf 37.776439,-122.394323 92
@@ -76,6 +79,7 @@
 149 Morgan_Hill_Caltrain_Station ctmh 37.129081,-121.650721 6
 57 San_Martin_Caltrain_Station ctsmar 37.085775,-121.610809 6
 140 Gilroy_Caltrain_Station ctgi 37.003606,-121.566497 6
+
 # DC frequencies from wmata-archiver_20130512_0322
 # counts from May, 2012 O-D table
 32611.1 UNION_STATION_METRO_STATION Union_Station 38.897770,-77.006402 452
